@@ -30,7 +30,7 @@
     "toolchain-gccarmnoneeabi": {
       "type": "toolchain",
       "owner": "platformio",
-      "version": ">=1.80000.0,<1.120000.0"
+      "version": ">=1.80000.0,<=1.140201.0"
     },
     "framework-py32f0sdk": {
       "type": "framework",
