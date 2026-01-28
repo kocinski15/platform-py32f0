@@ -1,5 +1,5 @@
 import sys
-from os.path import isdir, join
+from os.path import isdir, join, isfile
 from os import listdir
 import re
 import difflib
@@ -9,6 +9,7 @@ from SCons.Script import DefaultEnvironment
 env = DefaultEnvironment()
 platform = env.PioPlatform()
 board = env.BoardConfig()
+PROJ_DIR = env["PROJECT_DIR"]
 
 FRAMEWORK_DIR = platform.get_package_dir("framework-py32f0sdk")
 assert isdir(FRAMEWORK_DIR)
@@ -130,7 +131,12 @@ def get_linker_sizes(ld_file: str):
 ldscript = board.get('build.ldscript', '')
 if not ldscript:
     raise RuntimeError('Board has no ldscript!')
-ldscript = join(FRAMEWORK_DIR, 'ldscripts', ldscript)
+# try to find in project dir
+ldscript_proj = join(PROJ_DIR, ldscript)
+if isfile(ldscript_proj):
+    ldscript = ldscript_proj
+else:
+    ldscript = join(FRAMEWORK_DIR, 'ldscripts', ldscript)
 env.Replace(LDSCRIPT_PATH=ldscript)
 
 sizes = get_linker_sizes(ldscript)
