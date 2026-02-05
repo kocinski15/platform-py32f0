@@ -15,7 +15,7 @@ self_dir = os.path.dirname(env.subst('$BUILD_SCRIPT'))
 platform_dir = os.path.abspath(join(self_dir, '..'))
 
 env.Replace(
-    AR="arm-none-eabi-ar",
+    AR="arm-none-eabi-gcc-ar",
     AS="arm-none-eabi-as",
     CC="arm-none-eabi-gcc",
     CXX="arm-none-eabi-g++",
