@@ -17,7 +17,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/positron96/platform-py32f0"
+    "url": "https://github.com/kocinski15/platform-py32f0"
   },
   "version": "1.0.0",
   "frameworks": {
@@ -35,7 +35,7 @@
     "framework-py32f0sdk": {
       "type": "framework",
       "optional": true,
-      "version": "https://github.com/positron96/framework-py32f0sdk"
+      "version": "https://github.com/kocinski15/framework-py32f0sdk#py32f031"
     },
     "tool-openocd": {
       "type": "uploader",
