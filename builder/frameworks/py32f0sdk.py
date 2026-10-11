@@ -23,17 +23,27 @@ if mcu_short == 'PY32F002B':
     dir_prefix = 'PY32F002B'
 elif mcu_short.startswith('PY32F07'):
     dir_prefix = 'PY32F07x'
+elif mcu_short == 'PY32F031':
+    # PY32F031 has its own SDK (OpenPuya/PY32F031_Firmware): own device
+    # headers, own HAL+LL driver dir, py32f031_* file names.
+    dir_prefix = 'PY32F031'
 else:
     dir_prefix = 'PY32F0xx'
 
-cmsis_dir = join(FRAMEWORK_DIR, 'CMSIS')
+is_f031 = dir_prefix == 'PY32F031'
 
-need_hal = '-DUSE_HAL_DRIVER' in env['BUILD_FLAGS']
+cmsis_dir = join(FRAMEWORK_DIR, 'CMSIS')
+device_dir = join(cmsis_dir, 'Device', 'PY32F031' if is_f031 else 'PY32F0xx')
+
+# robust against build_flags written on one line ("-DA -DB")
+_build_flags = " ".join(env.Flatten(env.get('BUILD_FLAGS', []))).split()
+need_hal = '-DUSE_HAL_DRIVER' in _build_flags
 if need_hal:
     driver_dir = join(FRAMEWORK_DIR, dir_prefix+'_HAL_Driver')
     bsp_dir = join(FRAMEWORK_DIR, dir_prefix+'_HAL_BSP')
 else:
-    driver_dir = join(FRAMEWORK_DIR, dir_prefix+'_LL_Driver')
+    # F031 ships HAL and LL in a single directory
+    driver_dir = join(FRAMEWORK_DIR, dir_prefix+('_HAL_Driver' if is_f031 else '_LL_Driver'))
     bsp_dir = join(FRAMEWORK_DIR, dir_prefix+'_LL_BSP')
 
 machine_flags = [
@@ -73,7 +83,7 @@ env.Append(
     # includes
     CPPPATH=[
         join(cmsis_dir, 'Core', 'Include'),
-        join(cmsis_dir, 'Device', 'PY32F0xx', 'Include'),
+        join(device_dir, 'Include'),
         join(driver_dir, 'Inc'),
         env.subst("${PROJECT_INCLUDE_DIR}"),  # place for py32f0xx_hal_conf.h
     ],
@@ -94,7 +104,7 @@ env.Append(
 
 )
 
-need_bsp = '-DUSE_BSP' in env['BUILD_FLAGS']
+need_bsp = '-DUSE_BSP' in _build_flags
 
 if need_bsp:
     env.Append(
@@ -146,6 +156,8 @@ board.update("upload.maximum_ram_size", str(sizes[1]))
 env.BuildSources(
     join('$BUILD_DIR', 'Driver'),
     join(driver_dir, 'Src'),
+    # F031 LL-only build: HAL sources need py32f031_hal_conf.h, skip them
+    src_filter=None if (need_hal or not is_f031) else ['-<*>', '+<*_ll_*.c>'],
 )
 
 if need_bsp:
@@ -169,7 +181,7 @@ def select_best_file(path, filemask, mcu):
     return None
 
 
-cmsis_src_dir = join(cmsis_dir, 'Device', 'PY32F0xx', 'Source')
+cmsis_src_dir = join(device_dir, 'Source')
 sys_file = select_best_file(cmsis_src_dir, 'system_{}.c', mcu_short.lower())
 libs.append(
     env.BuildLibrary(

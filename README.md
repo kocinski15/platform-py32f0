@@ -18,6 +18,12 @@ For the rest of MCUs, add your definitions to your project (or make a PR to add 
 
 There are 2 examples (in the `examples` directory) for PY32F003 using LL and HAL drivers.
 
+### PY32F031
+
+Boards `generic_py32f031x4/x6/x7/x8` use the separate PY32F031 SDK from https://github.com/OpenPuya/PY32F031_Firmware (HAL+LL in `PY32F031_HAL_Driver`, headers named `py32f031_*`).
+HAL projects must provide `include/py32f031_hal_conf.h`; LL projects should define `USE_FULL_LL_DRIVER`.
+See `examples/example-f031-hal` and `examples/example-f031-ll`.
+
 ## Debug tools
 
 At the moment, the only supported and tested upload/debug tool is blackmagic probe
